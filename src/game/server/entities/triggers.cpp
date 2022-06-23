@@ -1150,18 +1150,16 @@ LINK_ENTITY_TO_CLASS(changelevel_dirty, CChangeDirty);
 
 void CChangeDirty::Use(CBaseEntity* pActivator, CBaseEntity* pOther, USE_TYPE useType, float value)
 {
-	char command[512];
+	std::string command = "map " + std::string(m_szMapName);
 
-	const int result = snprintf(command, sizeof(command), "map %s", m_szMapName);
-
-	if (result >= 0 && result < sizeof(command))
+	auto player = UTIL_PlayerByIndex(1);
+	if (player)
 	{
-		auto player = UTIL_PlayerByIndex(1);
-		CLIENT_COMMAND(player->edict(), "%s\n", command);
+		CLIENT_COMMAND(player->edict(), "%s\n", command.c_str());
 	}
 	else
 	{
-		ALERT(at_error, "Error formatting map command with map: '%s'\n", m_szMapName);
+		ALERT(at_error, "Error finding player client to run command '%s'\n", command.c_str());
 	}
 }
 
