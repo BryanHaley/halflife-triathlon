@@ -165,6 +165,21 @@ bool CHud::Redraw(float flTime, bool intermission)
 			pList = pList->pNext;
 		}
 	}
+	else
+	{
+		// Hack to draw some HUDs even when hud_draw is 0.
+		if (!intermission && !(m_iHideHUDDisplay & HIDEHUD_ALL))
+		{
+			if (m_Speedometer.m_iFlags & HUD_ACTIVE)
+				m_Speedometer.Draw(flTime);
+
+			if (m_StrafeGuide.m_iFlags & HUD_ACTIVE)
+				m_StrafeGuide.Draw(flTime);
+
+			if (m_Jumpspeed.m_iFlags & HUD_ACTIVE)
+				m_Jumpspeed.Draw(flTime);
+		}
+	}
 
 	// are we in demo mode? do we need to draw the logo in the top corner?
 	if (0 != m_iLogo)
@@ -348,6 +363,49 @@ int CHud::DrawHudNumber(int x, int y, int iFlags, int iNumber, const RGB24& colo
 	return x;
 }
 
+static constexpr int ten_powers[] = {
+	1,
+	10,
+	100,
+	1000,
+	10000,
+	100000,
+	1000000,
+	10000000,
+	100000000,
+	1000000000};
+
+int CHud::DrawHudNumber(int x, int y, int number, int r, int g, int b)
+{
+	auto digit_width = GetSpriteRect(m_HUD_number_0).right - GetSpriteRect(m_HUD_number_0).left;
+	auto digit_count = count_digits(number);
+
+	for (int i = digit_count; i > 0; --i)
+	{
+		int digit = number / ten_powers[i - 1];
+
+		RGB24 color;
+		color.Red = r;
+		color.Green = g;
+		color.Blue = b;
+
+		SPR_Set(GetSprite(m_HUD_number_0 + digit), color);
+		SPR_DrawAdditive(0, x, y, &GetSpriteRect(m_HUD_number_0 + digit));
+		x += digit_width;
+
+		number -= digit * ten_powers[i - 1];
+	}
+
+	return x;
+}
+
+int CHud::DrawHudNumberCentered(int x, int y, int number, int r, int g, int b)
+{
+	auto digit_width = GetSpriteRect(m_HUD_number_0).right - GetSpriteRect(m_HUD_number_0).left;
+	auto digit_count = count_digits(number);
+
+	return DrawHudNumber(x - (digit_width * digit_count) / 2, y, number, r, g, b);
+}
 
 int CHud::GetNumWidth(int iNumber, int iFlags)
 {

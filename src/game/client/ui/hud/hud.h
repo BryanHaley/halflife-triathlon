@@ -89,6 +89,9 @@ struct HUDLIST
 //
 #include "voice_status.h" // base voice handling class
 #include "hud_spectator.h"
+#include "hud_speedometer.h"
+#include "hud_strafeguide.h"
+#include "hud_jumpspeed.h"
 
 
 //
@@ -696,6 +699,8 @@ public:
 
 	int m_iFontHeight;
 	int DrawHudNumber(int x, int y, int iFlags, int iNumber, const RGB24& color);
+	int DrawHudNumber(int x, int y, int number, int r, int g, int b);
+	int DrawHudNumberCentered(int x, int y, int number, int r, int g, int b);
 	int DrawHudString(int x, int y, int iMaxX, const char* szString, const RGB24& color);
 	int DrawHudStringReverse(int xpos, int ypos, int iMinX, const char* szString, const RGB24& color);
 	int DrawHudNumberString(int xpos, int ypos, int iMinX, int iNumber, const RGB24& color);
@@ -719,14 +724,14 @@ public:
 		return (m_iWeaponBits & ~static_cast<std::uint64_t>(WEAPON_SUIT)) != 0;
 	}
 
+	struct cvar_s* default_fov;
+
 private:
 	// the memory for these arrays are allocated in the first call to CHud::VidInit(), when the hud.txt and associated sprites are loaded.
 	// freed in ~CHud()
 	HSPRITE* m_rghSprites; /*[HUD_SPRITE_COUNT]*/ // the sprites loaded from hud.txt
 	Rect* m_rgrcRects;							  /*[HUD_SPRITE_COUNT]*/
 	char* m_rgszSpriteNames;					  /*[HUD_SPRITE_COUNT][MAX_SPRITE_NAME_LENGTH]*/
-
-	struct cvar_s* default_fov;
 
 public:
 	HSPRITE GetSprite(int index)
@@ -762,6 +767,10 @@ public:
 	CHudPlayerBrowse m_PlayerBrowse;
 
 	CHudProjectInfo m_ProjectInfo;
+
+	CHudSpeedometer m_Speedometer;
+	CHudStrafeGuide m_StrafeGuide;
+	CHudJumpspeed m_Jumpspeed;
 
 	void Init();
 	void VidInit();

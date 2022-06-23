@@ -170,4 +170,23 @@ void VectorScale(const float* in, float scale, float* out);
 float VectorNormalize(float* v);
 void VectorInverse(float* v);
 
+static size_t count_digits(int n)
+{
+	size_t result = 0;
+
+	do
+	{
+		++result;
+	} while ((n /= 10) != 0);
+
+	return result;
+}
+
+inline void UnpackRGB(int& r, int& g, int& b, const RGB24& color)
+{
+	r = color.Red;
+	g = color.Green;
+	b = color.Blue;
+}
+
 HSPRITE LoadSprite(const char* pszName);

@@ -407,6 +407,9 @@ void CHud::Init()
 	m_FlagIcons.Init();
 	m_PlayerBrowse.Init();
 	m_ProjectInfo.Init();
+	m_Speedometer.Init();
+	m_StrafeGuide.Init();
+	m_Jumpspeed.Init();
 	GetClientVoiceMgr()->Init(&g_VoiceStatusHelper, (vgui::Panel**)&gViewPort);
 
 	m_Menu.Init();
@@ -559,6 +562,9 @@ void CHud::VidInit()
 	m_FlagIcons.VidInit();
 	m_PlayerBrowse.VidInit();
 	m_ProjectInfo.VidInit();
+	m_Speedometer.VidInit();
+	m_StrafeGuide.VidInit();
+	m_Jumpspeed.VidInit();
 	GetClientVoiceMgr()->VidInit();
 }
 
