@@ -1130,6 +1130,75 @@ void CTriggerCounter::Spawn()
 	SetUse(&CTriggerCounter::CounterUse);
 }
 
+// ====================== TRIGGER_CHANGELEVEL_DIRTY ================================
+
+class CChangeDirty : public CBaseEntity
+{
+public:
+	void Use(CBaseEntity* pActivator, CBaseEntity* pOther, USE_TYPE useType, float value) override;
+	bool KeyValue(KeyValueData* pkvd) override;
+
+	bool Save(CSave& save) override;
+	bool Restore(CRestore& restore) override;
+
+	static TYPEDESCRIPTION m_SaveData[];
+
+	char m_szMapName[cchMapNameMost];
+};
+
+LINK_ENTITY_TO_CLASS(changelevel_dirty, CChangeDirty);
+
+void CChangeDirty::Use(CBaseEntity* pActivator, CBaseEntity* pOther, USE_TYPE useType, float value)
+{
+	char command[512];
+
+	const int result = snprintf(command, sizeof(command), "map %s", m_szMapName);
+
+	if (result >= 0 && result < sizeof(command))
+	{
+		auto player = UTIL_PlayerByIndex(1);
+		CLIENT_COMMAND(player->edict(), "%s\n", command);
+	}
+	else
+	{
+		ALERT(at_error, "Error formatting map command with map: '%s'\n", m_szMapName);
+	}
+}
+
+bool CChangeDirty::KeyValue(KeyValueData* pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "map"))
+	{
+		if (strlen(pkvd->szValue) >= cchMapNameMost)
+			ALERT(at_error, "Map name '%s' too long (32 chars)\n", pkvd->szValue);
+		strcpy(m_szMapName, pkvd->szValue);
+		return true;
+	}
+
+	return CBaseEntity::KeyValue(pkvd);
+}
+
+/* bool CChangeDirty::Save(CSave& save)
+{
+	return save.WriteFields("CChangeDirty", this, m_SaveData, std::size(m_SaveData));
+}
+
+bool CChangeDirty::Restore(CRestore& restore)
+{
+	if (!restore.ReadFields("CChangeDirty", this, m_SaveData, std::size(m_SaveData)))
+		return false;
+
+	return true;
+}*/
+
+// Global Savedata for changelevel trigger
+TYPEDESCRIPTION CChangeDirty::m_SaveData[] =
+{
+	DEFINE_ARRAY(CChangeDirty, m_szMapName, FIELD_CHARACTER, cchMapNameMost)
+};
+
+IMPLEMENT_SAVERESTORE(CChangeDirty, CBaseEntity);
+
 // ====================== TRIGGER_CHANGELEVEL ================================
 
 class CTriggerVolume : public CPointEntity // Derive from point entity so this doesn't move across levels
