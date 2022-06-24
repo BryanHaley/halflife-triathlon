@@ -1,3 +1,4 @@
 Weapon binds use "selectweapon" command (e.g. bind "tab" "selectweapon weapon_shotgun")
 Grenades and tripmines don't have crosshair.
 Switching weapons while priming a grenade unprimes the grenade.
+Jeep suggested having the door in questionable ethics open when you get the gauss rifle
