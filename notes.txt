@@ -1,3 +1,3 @@
 Weapon binds use "selectweapon" command (e.g. bind "tab" "selectweapon weapon_shotgun")
-Grenade doesn't have crosshair.
-Switching weapons while priming a grenade unprimes the grenade
+Grenades and tripmines don't have crosshair.
+Switching weapons while priming a grenade unprimes the grenade.
