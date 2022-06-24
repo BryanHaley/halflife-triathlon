@@ -578,6 +578,34 @@ bool CBaseTrigger::KeyValue(KeyValueData* pkvd)
 	return CBaseToggle::KeyValue(pkvd);
 }
 
+// 
+// Dirty hack to fool the player into thinking they're in water.
+// Used to prevent fall damage.
+// 
+class CTriggerWater : public CBaseTrigger
+{
+public:
+	void Spawn() override;
+	void Touch(CBaseEntity* pOther) override;
+};
+
+LINK_ENTITY_TO_CLASS(trigger_water, CTriggerWater);
+
+void CTriggerWater::Spawn()
+{
+	InitTrigger();
+}
+
+void CTriggerWater::Touch(CBaseEntity* pOther)
+{
+	if (pOther->IsPlayer())
+	{
+		entvars_t* pevPlayer = pOther->pev;
+		pevPlayer->flags |= FL_INWATER;
+		pevPlayer->flags &= ~FL_ONGROUND;
+	}
+}
+
 class CTriggerHurt : public CBaseTrigger
 {
 public:
