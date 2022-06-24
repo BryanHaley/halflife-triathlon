@@ -34,6 +34,7 @@ public:
 	void StartTask(Task_t* pTask) override;
 	bool TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType) override;
 	void DeclineFollowing() override;
+	MONSTERSTATE GetIdealState() override;
 
 	void Scream();
 
@@ -178,4 +179,65 @@ void CRosenberg::PainSound()
 		EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "rosenberg/ro_pain5.wav", 1, ATTN_NORM, 0, 100);
 		break;
 	}
+}
+
+MONSTERSTATE CRosenberg::GetIdealState()
+{
+	switch (m_MonsterState)
+	{
+	case MONSTERSTATE_ALERT:
+	case MONSTERSTATE_IDLE:
+		if (HasConditions(bits_COND_NEW_ENEMY))
+		{
+			if (IsFollowing())
+			{
+				int relationship = IRelationship(m_hEnemy);
+				if (relationship != R_FR || relationship != R_HT && !HasConditions(bits_COND_LIGHT_DAMAGE | bits_COND_HEAVY_DAMAGE))
+				{
+					// Don't go to combat if you're following the player
+					m_IdealMonsterState = MONSTERSTATE_ALERT;
+					return m_IdealMonsterState;
+				}
+				//StopFollowing(true);
+			}
+		}
+		else if (HasConditions(bits_COND_LIGHT_DAMAGE | bits_COND_HEAVY_DAMAGE))
+		{
+			// Stop following if you take damage
+			/*if (IsFollowing())
+				StopFollowing(true);*/
+		}
+		break;
+
+	case MONSTERSTATE_COMBAT:
+	{
+		CBaseEntity* pEnemy = m_hEnemy;
+		if (pEnemy != nullptr)
+		{
+			if (DisregardEnemy(pEnemy)) // After 15 seconds of being hidden, return to alert
+			{
+				// Strip enemy when going to alert
+				m_IdealMonsterState = MONSTERSTATE_ALERT;
+				m_hEnemy = nullptr;
+				return m_IdealMonsterState;
+			}
+			// Follow if only scared a little
+			if (m_hTargetEnt != nullptr)
+			{
+				m_IdealMonsterState = MONSTERSTATE_ALERT;
+				return m_IdealMonsterState;
+			}
+
+			if (HasConditions(bits_COND_SEE_ENEMY))
+			{
+				m_fearTime = gpGlobals->time;
+				m_IdealMonsterState = MONSTERSTATE_COMBAT;
+				return m_IdealMonsterState;
+			}
+		}
+	}
+	break;
+	}
+
+	return CTalkMonster::GetIdealState();
 }
