@@ -1,0 +1,2 @@
+Weapon binds use "selectweapon" command (e.g. bind "tab" "selectweapon weapon_shotgun")
+Grenade doesn't have crosshair.
