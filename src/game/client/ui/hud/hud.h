@@ -92,6 +92,7 @@ struct HUDLIST
 #include "hud_speedometer.h"
 #include "hud_strafeguide.h"
 #include "hud_jumpspeed.h"
+#include "hud_timer.h"
 
 
 //
@@ -698,14 +699,17 @@ public:
 	RGB24 m_HudItemColor = RGB_HUD_COLOR;
 
 	int m_iFontHeight;
+	// TODO: make the drawhud funcs I stole from OpenAG use RGB24 color
 	int DrawHudNumber(int x, int y, int iFlags, int iNumber, const RGB24& color);
 	int DrawHudNumber(int x, int y, int number, int r, int g, int b);
 	int DrawHudNumberCentered(int x, int y, int number, int r, int g, int b);
 	int DrawHudString(int x, int y, int iMaxX, const char* szString, const RGB24& color);
+	int DrawHudStringCentered(int x, int y, const char* string, int r, int g, int b);
 	int DrawHudStringReverse(int xpos, int ypos, int iMinX, const char* szString, const RGB24& color);
 	int DrawHudNumberString(int xpos, int ypos, int iMinX, int iNumber, const RGB24& color);
 	int GetNumWidth(int iNumber, int iFlags);
 
+	int GetHudStringWidth(const char* string);
 	int GetHudNumberWidth(int number, int width, int flags);
 	int DrawHudNumberReverse(int x, int y, int number, int flags, const RGB24& color);
 
@@ -771,6 +775,7 @@ public:
 	CHudSpeedometer m_Speedometer;
 	CHudStrafeGuide m_StrafeGuide;
 	CHudJumpspeed m_Jumpspeed;
+	CHudTimer m_Timer;
 
 	void Init();
 	void VidInit();

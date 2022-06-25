@@ -432,6 +432,17 @@ int CHud::GetNumWidth(int iNumber, int iFlags)
 	return 3;
 }
 
+int CHud::DrawHudStringCentered(int x, int y, const char* string, int r, int g, int b)
+{
+	auto width = GetHudStringWidth(string);
+	return x + gEngfuncs.pfnDrawString(x - width / 2, y, string, r, g, b);
+}
+
+int CHud::GetHudStringWidth(const char* string)
+{
+	return gEngfuncs.pfnDrawString(0, 0, string, 0, 0, 0);
+}
+
 int CHud::GetHudNumberWidth(int number, int width, int flags)
 {
 	const int digitWidth = GetSpriteRect(m_HUD_number_0).right - GetSpriteRect(m_HUD_number_0).left;
