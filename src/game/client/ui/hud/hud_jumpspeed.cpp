@@ -17,6 +17,7 @@ bool CHudJumpspeed::Init()
 	hud_jumpspeed = CVAR_CREATE("hud_jumpspeed", "1", FCVAR_ARCHIVE);
 	hud_jumpspeed_below_cross = CVAR_CREATE("hud_jumpspeed_below_cross", "0", FCVAR_ARCHIVE);
 	hud_jumpspeed_height = CVAR_CREATE("hud_jumpspeed_height", "0", FCVAR_ARCHIVE);
+	hud_jumpspeed_stay_yellow = CVAR_CREATE("hud_jumpspeed_stay_yellow", "0", FCVAR_ARCHIVE);
 
 	gHUD.AddHudElem(this);
 	return true;
@@ -31,10 +32,13 @@ bool CHudJumpspeed::VidInit()
 bool CHudJumpspeed::Draw(float flTime)
 {
 	if (hud_jumpspeed->value == 0.0f)
-		return 0;
+		return false;
 
 	int r, g, b;
-	UnpackRGB(r, g, b, RGB_YELLOWISH);
+	if (hud_jumpspeed_stay_yellow->value == 0.0f)
+		UnpackRGB(r, g, b, gHUD.m_HudColor);
+	else
+		UnpackRGB(r, g, b, RGB_YELLOWISH);
 
 	int y;
 	if (hud_jumpspeed_below_cross->value != 0.0f)
@@ -77,14 +81,14 @@ void CHudJumpspeed::UpdateSpeed(const float velocity[3])
 			{
 				if (difference > 0.0f)
 				{
-					fadingFrom[0] = 0;
-					fadingFrom[1] = 255;
+					fadingFrom[0] = 255;
+					fadingFrom[1] = 0;
 					fadingFrom[2] = 0;
 				}
 				else
 				{
-					fadingFrom[0] = 255;
-					fadingFrom[1] = 0;
+					fadingFrom[0] = 0;
+					fadingFrom[1] = 255;
 					fadingFrom[2] = 0;
 				}
 

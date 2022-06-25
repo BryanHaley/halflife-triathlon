@@ -9,6 +9,7 @@ class CHudTimer : public CHudBase
 
 	cvar_t* hud_timer;
 	cvar_t* hud_timer_height;
+	cvar_t* hud_timer_stay_yellow;
 
 public:
 	virtual bool Init();

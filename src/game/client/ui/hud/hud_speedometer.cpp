@@ -16,6 +16,7 @@ bool CHudSpeedometer::Init()
 	hud_speedometer = CVAR_CREATE("hud_speedometer", "1", FCVAR_ARCHIVE);
 	hud_speedometer_below_cross = CVAR_CREATE("hud_speedometer_below_cross", "0", FCVAR_ARCHIVE);
 	hud_speedometer_height = CVAR_CREATE("hud_speedometer_height", "0", FCVAR_ARCHIVE);
+	hud_speedometer_stay_yellow = CVAR_CREATE("hud_speedometer_stay_yellow", "0", FCVAR_ARCHIVE);
 
 	gHUD.AddHudElem(this);
 	return 0;
@@ -29,11 +30,13 @@ bool CHudSpeedometer::VidInit()
 bool CHudSpeedometer::Draw(float time)
 {
 	if (hud_speedometer->value == 0.0f)
-		return 0;
+		return false;
 
 	int r, g, b;
-	//UnpackRGB(r, g, b, gHUD.m_iDefaultHUDColor);
-	UnpackRGB(r, g, b, RGB_YELLOWISH);
+	if (hud_speedometer_stay_yellow->value == 0.0f)
+		UnpackRGB(r, g, b, gHUD.m_HudColor);
+	else
+		UnpackRGB(r, g, b, RGB_YELLOWISH);
 
 	int y;
 	if (hud_speedometer_below_cross->value != 0.0f)
@@ -45,7 +48,7 @@ bool CHudSpeedometer::Draw(float time)
 
 	gHUD.DrawHudNumberCentered(ScreenWidth / 2, y, speed, r, g, b);
 
-	return 0;
+	return true;
 }
 
 void CHudSpeedometer::UpdateSpeed(const float velocity[2])

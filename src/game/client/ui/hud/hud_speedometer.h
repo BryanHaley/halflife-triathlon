@@ -10,6 +10,7 @@ class CHudSpeedometer : public CHudBase
 	cvar_t* hud_speedometer_nosuit;
 	cvar_t* hud_speedometer_below_cross;
 	cvar_t* hud_speedometer_height;
+	cvar_t* hud_speedometer_stay_yellow;
 
 public:
 	virtual bool Init();

@@ -17,6 +17,7 @@ bool CHudTimer::Init()
 
 	hud_timer = CVAR_CREATE("hud_timer", "1", FCVAR_ARCHIVE);
 	hud_timer_height = CVAR_CREATE("hud_timer_height", "0", FCVAR_ARCHIVE);
+	hud_timer_stay_yellow = CVAR_CREATE("hud_timer_stay_yellow", "0", FCVAR_ARCHIVE);
 
 	time = 0;
 	paused = false;
@@ -41,7 +42,10 @@ bool CHudTimer::Draw(float flTime)
 		return false;
 
 	int r, g, b;
-	UnpackRGB(r, g, b, gHUD.m_HudColor);
+	if (hud_timer_stay_yellow->value == 0.0f)
+		UnpackRGB(r, g, b, gHUD.m_HudColor);
+	else
+		UnpackRGB(r, g, b, RGB_YELLOWISH);
 
 	int y;
 	if (hud_timer_height->value != 0.0f)
