@@ -80,4 +80,6 @@ void LinkUserMessages()
 	gmsgWeapons = REG_USER_MSG("Weapons", 8);
 	
 	gmsgProjectInfo = REG_USER_MSG("ProjectInfo", -1);
+
+	gmsgStopTime = REG_USER_MSG("StopTime", 0);
 }

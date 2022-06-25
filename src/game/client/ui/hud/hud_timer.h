@@ -15,6 +15,8 @@ public:
 	virtual bool VidInit();
 	virtual bool Draw(float time);
 
+	bool MsgFunc_StopTime(const char* pszName, int iSize, void* pbuf);
+
 	void ResetTime();
 	void StopTime();
 };

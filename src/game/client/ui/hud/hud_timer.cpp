@@ -7,8 +7,12 @@
 
 #include "hud_timer.h"
 
+DECLARE_MESSAGE(m_Timer, StopTime);
+
 bool CHudTimer::Init()
 {
+	HOOK_MESSAGE(StopTime);
+
 	m_iFlags = HUD_ACTIVE;
 
 	hud_timer = CVAR_CREATE("hud_timer", "1", FCVAR_ARCHIVE);
@@ -70,6 +74,12 @@ bool CHudTimer::Draw(float flTime)
 	gHUD.DrawHudStringCentered(colon_3_x, y, ".", r, g, b);
 	gHUD.DrawHudNumber(millis_x, y, milliseconds, r, g, b);
 
+	return true;
+}
+
+bool CHudTimer::MsgFunc_StopTime(const char* pszName, int iSize, void* pbuf)
+{
+	paused = true;
 	return true;
 }
 
