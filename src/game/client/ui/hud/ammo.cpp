@@ -311,6 +311,11 @@ bool CHudAmmo::Init()
 	gWR.Init();
 	gHR.Init();
 
+	// Hack: enable crosshair at the beginning of the game
+	WEAPON* pWeapon = gWR.GetWeapon(WEAPON_GLOCK); // Default to pistol crosshair
+	SetCrosshair(pWeapon->hCrosshair, pWeapon->rcCrosshair);
+	SetDrawCrosshair(true);
+
 	return true;
 };
 
