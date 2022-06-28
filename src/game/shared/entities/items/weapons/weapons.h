@@ -908,19 +908,22 @@ public:
 #endif
 
 	void OnCreate() override;
-	void Spawn() override;
-	void Precache() override;
-	int iItemSlot() override { return 4; }
-	bool GetItemInfo(ItemInfo* p) override;
-	void IncrementAmmo(CBasePlayer* pPlayer) override;
+	void Spawn();
+	void Precache();
+	int iItemSlot() { return 4; }
+	bool GetItemInfo(ItemInfo* p);
+	bool AddToPlayer(CBasePlayer* pPlayer);
 
-	bool Deploy() override;
-	void Holster() override;
+	bool Deploy();
+	void Holster();
 
-	void PrimaryAttack() override;
-	void SecondaryAttack() override;
-	void WeaponIdle() override;
+	void PrimaryAttack();
+	void SecondaryAttack();
+	void WeaponIdle();
 
+	int m_fInAttack;
+	float m_flStartCharge;
+	float m_flPlayAftershock;
 	void StartFire();
 	void Fire(Vector vecOrigSrc, Vector vecDirShooting, float flDamage);
 	float GetFullChargeTime();
@@ -929,25 +932,11 @@ public:
 	int m_iBeam;
 	int m_iSoundState; // don't save this
 
+	float m_flNextAmmoBurn; // while charging, when to absorb another unit of player's ammo?
+
 	// was this weapon just fired primary or secondary?
 	// we need to know so we can pick the right set of effects.
 	bool m_fPrimaryFire;
-
-	bool UseDecrement() override
-	{
-#if defined(CLIENT_WEAPONS)
-		return true;
-#else
-		return false;
-#endif
-	}
-
-private:
-	void SendStopEvent(bool sendToHost);
-
-private:
-	unsigned short m_usGaussFire;
-	unsigned short m_usGaussSpin;
 };
 
 enum egon_e
