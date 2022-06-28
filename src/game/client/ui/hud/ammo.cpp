@@ -238,6 +238,8 @@ DECLARE_MESSAGE(m_Ammo, WeapPickup); // flashes a weapon pickup record
 DECLARE_MESSAGE(m_Ammo, HideWeapon); // hides the weapon, ammo, and crosshair displays temporarily
 DECLARE_MESSAGE(m_Ammo, ItemPickup);
 
+DECLARE_MESSAGE(m_Ammo, ForceCross);
+
 DECLARE_COMMAND(m_Ammo, Slot1);
 DECLARE_COMMAND(m_Ammo, Slot2);
 DECLARE_COMMAND(m_Ammo, Slot3);
@@ -285,6 +287,7 @@ bool CHudAmmo::Init()
 	HOOK_MESSAGE(ItemPickup);
 	HOOK_MESSAGE(HideWeapon);
 	HOOK_MESSAGE(AmmoX);
+	HOOK_MESSAGE(ForceCross);
 
 	HOOK_COMMAND("slot1", Slot1);
 	HOOK_COMMAND("slot2", Slot2);
@@ -310,11 +313,6 @@ bool CHudAmmo::Init()
 
 	gWR.Init();
 	gHR.Init();
-
-	// Hack: enable crosshair at the beginning of the game
-	WEAPON* pWeapon = gWR.GetWeapon(WEAPON_GLOCK); // Default to pistol crosshair
-	SetCrosshair(pWeapon->hCrosshair, pWeapon->rcCrosshair);
-	SetDrawCrosshair(true);
 
 	return true;
 };
@@ -575,6 +573,16 @@ bool CHudAmmo::MsgFunc_HideWeapon(const char* pszName, int iSize, void* pbuf)
 		}
 	}
 
+	return true;
+}
+
+// Hack: enable crosshair at the beginning of the game
+bool CHudAmmo::MsgFunc_ForceCross(const char* pszName, int iSize, void* pbuf)
+{
+	// Default to pistol crosshair
+	WEAPON* pWeapon = gWR.GetWeapon(WEAPON_GLOCK);
+	SetCrosshair(pWeapon->hCrosshair, pWeapon->rcCrosshair);
+	SetDrawCrosshair(true);
 	return true;
 }
 

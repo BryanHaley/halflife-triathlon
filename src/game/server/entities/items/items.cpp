@@ -196,6 +196,10 @@ public:
 			EMIT_SOUND_SUIT(pPlayer->edict(), "!HEV_AAx"); // long version of suit logon
 
 		pPlayer->SetHasSuit(true);
+
+		MESSAGE_BEGIN(MSG_ALL, gmsgForceCross, nullptr);
+		MESSAGE_END();
+
 		return true;
 	}
 };

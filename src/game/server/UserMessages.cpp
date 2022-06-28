@@ -82,4 +82,5 @@ void LinkUserMessages()
 	gmsgProjectInfo = REG_USER_MSG("ProjectInfo", -1);
 
 	gmsgStopTime = REG_USER_MSG("StopTime", 0);
+	gmsgForceCross = REG_USER_MSG("ForceCross", 0);
 }
