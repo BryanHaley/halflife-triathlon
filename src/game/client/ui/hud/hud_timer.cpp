@@ -1,5 +1,6 @@
 #include <cmath>
 #include <cstring>
+#include <sstream>
 
 #include "hud.h"
 #include "cl_util.h"
@@ -17,10 +18,12 @@ bool CHudTimer::Init()
 
 	hud_timer = CVAR_CREATE("hud_timer", "1", FCVAR_ARCHIVE);
 	hud_timer_height = CVAR_CREATE("hud_timer_height", "0", FCVAR_ARCHIVE);
+	hud_timer_precision = CVAR_CREATE("hud_timer_precision", "2", FCVAR_ARCHIVE);
 	hud_timer_stay_yellow = CVAR_CREATE("hud_timer_stay_yellow", "0", FCVAR_ARCHIVE);
+	hud_timer_draw_as_string = CVAR_CREATE("hud_timer_draw_as_string", "0", FCVAR_ARCHIVE);
 
-	time = 0;
-	paused = false;
+	m_fTime = 0;
+	m_bPaused = false;
 
 	gEngfuncs.pfnAddCommand("hud_timer_reset", HudTimerReset);
 	gEngfuncs.pfnAddCommand("hud_timer_stop", HudTimerStop);
@@ -36,16 +39,14 @@ bool CHudTimer::VidInit()
 
 bool CHudTimer::Draw(float flTime)
 {
-	if (!paused) time += gpGlobals->frametime;
+	if (!m_bPaused) m_fTime += gpGlobals->frametime;
 
 	if (hud_timer->value == 0.0f)
 		return false;
 
-	int r, g, b;
+	RGB24 color = RGB_YELLOWISH;
 	if (hud_timer_stay_yellow->value == 0.0f)
-		UnpackRGB(r, g, b, gHUD.m_HudColor);
-	else
-		UnpackRGB(r, g, b, RGB_YELLOWISH);
+		color = gHUD.m_HudColor;
 
 	int y;
 	if (hud_timer_height->value != 0.0f)
@@ -53,49 +54,115 @@ bool CHudTimer::Draw(float flTime)
 	else
 		y = (ScreenHeight/2) - (gHUD.m_iFontHeight/2);
 
-	std::chrono::hh_mm_ss chrono_time{std::chrono::seconds((int) time)};
-
-	int time_i = (int) time;
-
+	// Convert time (seconds) into hours, minutes, seconds with std::chrono
+	std::chrono::hh_mm_ss chrono_time{std::chrono::seconds((int) m_fTime)};
 	int hours = chrono_time.hours().count();
 	int minutes = chrono_time.minutes().count();
 	int seconds = chrono_time.seconds().count();
-	int milliseconds = (time - time_i) * 1000;
 
-	int hours_x = gHUD.m_iFontHeight/2;
-	int colon_1_x = hours_x + gHUD.GetHudNumberWidth(hours, 2, DHN_2DIGITS);
-	int minutes_x = colon_1_x + gHUD.GetHudNumberWidth(0, 1, DHN_DRAWZERO);
-	int colon_2_x = minutes_x + gHUD.GetHudNumberWidth(minutes_x, 2, DHN_2DIGITS);
-	int seconds_x = colon_2_x + gHUD.GetHudNumberWidth(0, 1, DHN_DRAWZERO);
-	int colon_3_x = seconds_x + gHUD.GetHudNumberWidth(seconds_x, 2, DHN_2DIGITS);
-	int millis_x = colon_3_x + gHUD.GetHudNumberWidth(0, 1, DHN_DRAWZERO);
+	// Convert time to int and subtract from time for milliseconds
+	int time_i = (int) m_fTime;
+	int milliseconds = (m_fTime - time_i) * 1000;
 
-	gHUD.DrawHudNumber(hours_x, y, hours, r, g, b);
-	gHUD.DrawHudStringCentered(colon_1_x, y, ":", r, g, b);
-	gHUD.DrawHudNumber(minutes_x, y, minutes, r, g, b);
-	gHUD.DrawHudStringCentered(colon_2_x, y, ":", r, g, b);
-	gHUD.DrawHudNumber(seconds_x, y, seconds, r, g, b);
-	gHUD.DrawHudStringCentered(colon_3_x, y, ".", r, g, b);
-	gHUD.DrawHudNumber(millis_x, y, milliseconds, r, g, b);
+	// Convert hours, minutes, seconds, milliseconds into individual digits
+	// Will technically break if we go over 99 hours but this is a speedrun so it's fine
+	int hours_tens = hours / 10;
+	int hours_ones = hours % 10;
+	int minutes_tens = minutes / 10;
+	int minutes_ones = minutes % 10;
+	int seconds_tens = seconds / 10;
+	int seconds_ones = seconds % 10;
+	int milli_huns = milliseconds / 100;
+	int milli_tens = (milliseconds / 10) % 10;
+	int milli_ones = milliseconds % 10;
+
+	// Draw using DrawHudNumber (much larger than DrawHudString)
+	if (hud_timer_draw_as_string->value == 0.0f)
+	{
+		int width = gHUD.GetHudNumberWidth(1, 1, DHN_2DIGITS);
+		int x = gHUD.m_iFontHeight/2;
+
+		int r = color.Red;
+		int g = color.Green;
+		int b = color.Blue;
+
+		// Draw hours
+		if (hours > 0)
+		{
+			// in theory maybe we shouldn't even bother drawing hours_tens since it's
+			// extremely unlikely a speedrun will go for 10 hours, but it looks nicer
+			gHUD.DrawHudNumber(x,       y, hours_tens, r, g, b);
+			gHUD.DrawHudNumber(x+width, y, hours_ones, r, g, b);
+			gHUD.DrawHudStringCentered(x+width*2+width/2, y, ":", r, g, b);
+		}
+
+		else x -= (x+width*2); // shift minutes etc left when not drawing hours
+		
+		// Draw minutes
+		gHUD.DrawHudNumber(x+width*3, y, minutes_tens, r, g, b);
+		gHUD.DrawHudNumber(x+width*4, y, minutes_ones, r, g, b);
+		gHUD.DrawHudStringCentered(x+width*5+width/2, y, ":", r, g, b);
+		
+		// Draw seconds
+		gHUD.DrawHudNumber(x+width*6, y, seconds_tens, r, g, b);
+		gHUD.DrawHudNumber(x+width*7, y, seconds_ones, r, g, b);
+
+		// Draw milliseconds
+		if (hud_timer_precision->value >= 1.0f)
+		{
+			gHUD.DrawHudStringCentered(x+width*8+width/2, y+gHUD.m_iFontHeight/4, ".", r, g, b);
+			gHUD.DrawHudNumber(x+width*9, y, milli_huns, r, g, b);
+		}
+		if (hud_timer_precision->value >= 2.0f)
+			gHUD.DrawHudNumber(x+width*10, y, milli_tens, r, g, b);
+		if (hud_timer_precision->value >= 3.0f)
+			gHUD.DrawHudNumber(x+width*11, y, milli_ones, r, g, b);
+	}
+
+	// Draw time as a string. Quite tiny at HD resolutions.
+	else
+	{
+		std::stringstream ss;
+		
+		// Add hours to string
+		if (hours > 0)	
+			ss << hours_tens << hours_ones << ":";
+
+		// Add minutes and seconds to string
+		ss << minutes_tens << minutes_ones << ":";
+		ss << seconds_tens << seconds_ones;
+		
+		// Add milliseconds to string
+		if (hud_timer_precision->value >= 1.0f)
+		{
+			ss << "." << milli_huns;
+		}
+		if (hud_timer_precision->value >= 2.0f)
+			ss << milli_tens;
+		if (hud_timer_precision->value >= 3.0f)
+			ss << milli_ones;
+
+		gHUD.DrawHudString(10, y, ScreenWidth / 2, ss.str().c_str(), color);
+	}
 
 	return true;
 }
 
 bool CHudTimer::MsgFunc_StopTime(const char* pszName, int iSize, void* pbuf)
 {
-	paused = true;
+	m_bPaused = true;
 	return true;
 }
 
 void CHudTimer::ResetTime()
 {
-	time = 0;
-	paused = false;
+	m_fTime = 0;
+	m_bPaused = false;
 }
 
 void CHudTimer::StopTime()
 {
-	paused = true;
+	m_bPaused = true;
 }
 
 void HudTimerReset()

@@ -4,12 +4,14 @@
 
 class CHudTimer : public CHudBase
 {
-	float time;
-	bool paused;
+	float m_fTime = 0;
+	bool  m_bPaused = false;
 
 	cvar_t* hud_timer;
 	cvar_t* hud_timer_height;
+	cvar_t* hud_timer_precision;
 	cvar_t* hud_timer_stay_yellow;
+	cvar_t* hud_timer_draw_as_string;
 
 public:
 	virtual bool Init();
