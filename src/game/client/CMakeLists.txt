@@ -168,6 +168,14 @@ target_sources(client PRIVATE
 	ui/hud/hud_spectator.cpp
 	ui/hud/hud_spectator.h
 	ui/hud/hud_update.cpp
+	ui/hud/hud_jumpspeed.h
+	ui/hud/hud_jumpspeed.cpp
+	ui/hud/hud_speedometer.h
+	ui/hud/hud_speedometer.cpp
+	ui/hud/hud_strafeguide.h
+	ui/hud/hud_strafeguide.cpp
+	ui/hud/hud_timer.h
+	ui/hud/hud_timer.cpp
 	ui/hud/menu.cpp
 	ui/hud/message.cpp
 	ui/hud/saytext.cpp

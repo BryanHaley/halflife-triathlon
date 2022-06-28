@@ -89,6 +89,7 @@ target_sources(server PRIVATE
 	entities/sound.cpp
 	entities/soundent.cpp
 	entities/soundent.h
+	entities/stoptime.cpp
 	entities/subs.cpp
 	entities/trains.h
 	entities/triggers.cpp
